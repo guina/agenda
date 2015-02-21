@@ -28,6 +28,7 @@ if($_GET['data']){
     echo '<div class="alert alert-success">Reserva efetuada para dia '.$f['data'].'</div>';
     }
     endif;
+    echo 'vai a merda';
 }
 ?>
 
