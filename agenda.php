@@ -1,11 +1,13 @@
    <?php 
 require('agendaSis.php');
+require('agendaClass.php');
 ?>
    <!DOCTYPE html>
    <html>
    <head>
        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
        <title>Teste - Agenda</title>
+       <link rel="stylesheet" type="text/css" href="agendaCss.css" />
    </head>
    <body>
 <?php 
@@ -27,7 +29,6 @@ if($_GET['data']){
     }
     endif;
 }
-$obj_calend = new riaCalendario();
 ?>
 
 <?php 
@@ -61,6 +62,9 @@ if($_GET['data'] AND !isset($_POST['sendForm'])){?>
 </div>
 <?php 
 }
+
+$obj_calend = new riaCalendario();
+
 //define data para gerar o calendario
 $date = ('01/'.$_GET['mes'].'/'.date('Y'));
 $datedefault = '01/'.date('n').'/'.date('Y');

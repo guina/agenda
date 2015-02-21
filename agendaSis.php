@@ -5,14 +5,14 @@ CONFIGURAÇÃO DO BANCO
 
 define(HOST,'localhost');
 define(USER,'root');
-define(PASS,'');
-define(DBSA,'github');
+define(PASS,'651528');
+define(DBSA,'ibweb');
 
 /*****************************
 DEFINE INFORMAÇÕES DO SITE
 *****************************/
 
-define(BASE,'http://localhost/GitHub');
+define(BASE,'http://localhost/GitHub/agenda');
 define(SITETAGS,'Agenda, Reservas, ');
 
 /*****************************
@@ -35,5 +35,22 @@ function create($tabela, array $datas){
 		return true;
 	}
 }
+/*****************************
+FUNÇÃO DE CADASTRO NO BANCO
+*****************************/
+function read($tabela, $cond = NULL){		
+	$qrRead = "SELECT * FROM {$tabela} {$cond}";
+	$stRead = mysql_query($qrRead) or die ('Erro ao ler em '.$tabela.' '.mysql_error());
+	$cField = mysql_num_fields($stRead);
+	for($y = 0; $y < $cField; $y++){
+		$names[$y] = mysql_field_name($stRead,$y);
+	}
+	for($x = 0; $res = mysql_fetch_assoc($stRead); $x++){
+		for($i = 0; $i < $cField; $i++){
+			$resultado[$x][$names[$i]] = $res[$names[$i]];
+		}
+	}
+		return $resultado;
+	}
 
 ?>
