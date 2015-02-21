@@ -5,7 +5,7 @@ CONFIGURAÇÃO DO BANCO
 
 define(HOST,'localhost');
 define(USER,'root');
-define(PASS,'651528');
+define(PASS,'');
 define(DBSA,'ibweb');
 
 /*****************************
