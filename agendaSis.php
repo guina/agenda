@@ -1,56 +1,90 @@
 <?php
-/*****************************
-CONFIGURAÇÃO DO BANCO
-*****************************/
+class Dbasis{
+   protected $host;
+   protected $port;
+   protected $dbname;
+   protected $user;
+   protected $password;
+   protected $dns;
+   protected $conn;
 
-define(HOST,'localhost');
-define(USER,'root');
-define(PASS,'');
-define(DBSA,'ibweb');
 
-/*****************************
-DEFINE INFORMAÇÕES DO SITE
-*****************************/
+   function __construct()
+   {
+      $this->host       = '';
+      $this->port       = '';
+      $this->dbname     = '';
+      $this->user       = '';
+      $this->password   = '';
+      $this->dns        = "host= $this->host port=$this->port dbname=$this->dbname user=$this->user password=$this->password";
+      $this->conn       =  pg_connect($this->dns) or die('ERRO AO CONECTAR! '.pg_last_error());
+   }
+   public function close(){
+      pg_close($this->conn);
+   }
 
-define(BASE,'http://localhost/GitHub/agenda');
-define(SITETAGS,'Agenda, Reservas, ');
-
-/*****************************
-FUNÇÃO PARA CONECTAR AO BANCO
-*****************************/
-
-$conn = mysql_connect(HOST, USER, PASS) or die ('Erro ao conectar: '.mysql_error());
-$dbsa = mysql_select_db(DBSA) or die ('Erro ao selecionar banco: '.mysql_error());
-	
-/*****************************
-FUNÇÃO DE CADASTRO NO BANCO
-*****************************/
-
-function create($tabela, array $datas){
-	$fields = implode(", ",array_keys($datas));
-	$values = "'".implode("', '",array_values($datas))."'";			
-	$qrCreate = "INSERT INTO {$tabela} ($fields) VALUES ($values)";
-	$stCreate = mysql_query($qrCreate) or die ('Erro ao cadastrar em '.$tabela.' '.mysql_error());
-	if($stCreate){
-		return true;
-	}
+   public function create($tabela, array $datas)
+   {
+      $fields     = implode(", ", array_keys($datas));
+      $values     = "'" . implode("', '", array_values($datas)) . "'";
+      $qrCreate   = "INSERT INTO {$tabela} ($fields) VALUES ($values)";
+      $stCreate   = pg_query($qrCreate);
+      if(pg_affected_rows($stCreate)>0){
+         return pg_result_status($stCreate); //retorna 1 
+      }else{
+            return false;
+      }
+      Dbasis::close();
+   }
+     
+   public function read(string $tabela, string $condicao = NULL)
+   {
+      $qrRead = "SELECT * FROM {$tabela} {$condicao}";
+      $stRead = pg_query($this->conn,$qrRead);
+      if(pg_affected_rows($stRead)>0){
+         return pg_fetch_all($stRead); 
+      }else{
+         return false;
+      }
+      Dbasis::close();
+   }
+   
+   public function update($tabela, array $datas, $where)
+   {
+       foreach ($datas as $fields => $values) {
+           $campos[] = "$fields = '$values'";
+       }
+       $campos = implode(", ", $campos);
+       $qrUpdate = "UPDATE " . $tabela . " SET " . $campos . " WHERE " . $where;
+       $stUpdate = pg_query($this->conn,$qrUpdate);
+       if (pg_affected_rows($stUpdate)>0) {
+           return $campos;
+       }else{
+          return false;
+       }
+      Dbasis::close();
+   }
+   
+   public function select($campo, $tabela, $cond = NULL)
+   {
+      $qrRead = "SELECT {$campo} FROM {$tabela} {$cond}";
+      $stRead = pg_query($this->conn, $qrRead);
+      if ($stRead) {
+         return pg_fetch_all($stRead);
+      }else{
+         return false;
+      }
+      Dbasis::close();
+   }
+   protected function delete($tabela, $where)
+   {
+       $qrDelete = "DELETE FROM {$tabela} WHERE {$where}";
+       $stDelete = pg_query($this->conn, $qrDelete);
+       if ($stDelete) {
+           return $stDelete;
+       }else{
+          return false;
+       }
+      Dbasis::close();
+   }
 }
-/*****************************
-FUNÇÃO DE CADASTRO NO BANCO
-*****************************/
-function read($tabela, $cond = NULL){		
-	$qrRead = "SELECT * FROM {$tabela} {$cond}";
-	$stRead = mysql_query($qrRead) or die ('Erro ao ler em '.$tabela.' '.mysql_error());
-	$cField = mysql_num_fields($stRead);
-	for($y = 0; $y < $cField; $y++){
-		$names[$y] = mysql_field_name($stRead,$y);
-	}
-	for($x = 0; $res = mysql_fetch_assoc($stRead); $x++){
-		for($i = 0; $i < $cField; $i++){
-			$resultado[$x][$names[$i]] = $res[$names[$i]];
-		}
-	}
-		return $resultado;
-	}
-
-?>
